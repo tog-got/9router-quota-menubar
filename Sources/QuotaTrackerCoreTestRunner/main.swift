@@ -581,16 +581,21 @@ struct TestMain {
         }
         
         // 9. Session (5 Hours) vs Weekly (Mingguan) Quota Classification Tests
-        await runner.runTest(name: "Session vs Weekly Quota Classification") {
-            let mSession1 = NormalizedQuotaMetric(name: "claude_gpt_session", used: 0, total: 100)
-            let mSession2 = NormalizedQuotaMetric(name: "gemini_session", used: 10, total: 100)
-            let mWeekly1 = NormalizedQuotaMetric(name: "spark_weekly", used: 50, total: 200)
-            let mWeekly2 = NormalizedQuotaMetric(name: "weekly_token_limit", used: 100, total: 500)
+        await runner.runTest(name: "Session vs Weekly Quota Classification & Family Grouping") {
+            let mGeminiSession = NormalizedQuotaMetric(name: "gemini_session", used: 10, total: 100)
+            let mGeminiWeekly = NormalizedQuotaMetric(name: "gemini_weekly", used: 50, total: 200)
+            let mClaudeSession = NormalizedQuotaMetric(name: "claude_gpt_session", used: 0, total: 100)
+            let mClaudeWeekly = NormalizedQuotaMetric(name: "claude_gpt_weekly", used: 20, total: 100)
+            let mWeeklyToken = NormalizedQuotaMetric(name: "weekly_token_limit", used: 100, total: 500)
             
-            try assertEqual(mSession1.isWeekly, false, "claude_gpt_session seharusnya bukan weekly")
-            try assertEqual(mSession2.isWeekly, false, "gemini_session seharusnya bukan weekly")
-            try assertEqual(mWeekly1.isWeekly, true, "spark_weekly seharusnya weekly")
-            try assertEqual(mWeekly2.isWeekly, true, "weekly_token_limit seharusnya weekly")
+            try assertEqual(mClaudeSession.isWeekly, false, "claude_gpt_session seharusnya bukan weekly")
+            try assertEqual(mGeminiSession.isWeekly, false, "gemini_session seharusnya bukan weekly")
+            try assertEqual(mGeminiWeekly.isWeekly, true, "gemini_weekly seharusnya weekly")
+            try assertEqual(mClaudeWeekly.isWeekly, true, "claude_gpt_weekly seharusnya weekly")
+            try assertEqual(mWeeklyToken.isWeekly, true, "weekly_token_limit seharusnya weekly")
+            
+            try assertEqual(mGeminiSession.durationLabel, "5 Jam (Sesi)")
+            try assertEqual(mGeminiWeekly.durationLabel, "Mingguan (Weekly)")
             
             let provider = NormalizedProviderQuota(
                 connectionId: "p1",
@@ -598,13 +603,27 @@ struct TestMain {
                 displayName: "Antigravity",
                 accountStatus: "active",
                 isOnline: true,
-                metrics: [mSession1, mSession2, mWeekly1, mWeekly2]
+                metrics: [mGeminiSession, mClaudeSession, mGeminiWeekly, mClaudeWeekly]
             )
             
             try assertEqual(provider.sessionMetrics.count, 2, "Jumlah session metrics harus 2")
             try assertEqual(provider.weeklyMetrics.count, 2, "Jumlah weekly metrics harus 2")
-            try assertEqual(provider.sessionMetrics[0].name, "claude_gpt_session")
-            try assertEqual(provider.weeklyMetrics[0].name, "spark_weekly")
+            
+            // Verifikasi Family Groups: Gemini dan Claude & GPT
+            let families = provider.familyGroups
+            try assertEqual(families.count, 2, "Harus ada 2 keluarga model (Gemini dan Claude & GPT)")
+            
+            let geminiFamily = families.first { $0.title == "Gemini" }
+            try assertEqual(geminiFamily != nil, true, "Grup Gemini harus ditemukan")
+            try assertEqual(geminiFamily?.metrics.count, 2, "Grup Gemini harus punya 2 metrik (5 Jam dan Weekly)")
+            try assertEqual(geminiFamily?.metrics[0].name, "gemini_session", "Metrik 5 jam sesi harus di urutan pertama")
+            try assertEqual(geminiFamily?.metrics[1].name, "gemini_weekly", "Metrik mingguan harus di urutan kedua")
+            
+            let claudeFamily = families.first { $0.title == "Claude & GPT" }
+            try assertEqual(claudeFamily != nil, true, "Grup Claude & GPT harus ditemukan")
+            try assertEqual(claudeFamily?.metrics.count, 2, "Grup Claude & GPT harus punya 2 metrik (5 Jam dan Weekly)")
+            try assertEqual(claudeFamily?.metrics[0].name, "claude_gpt_session")
+            try assertEqual(claudeFamily?.metrics[1].name, "claude_gpt_weekly")
         }
         
         let allSuccess = runner.summarize()

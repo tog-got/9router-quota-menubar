@@ -134,6 +134,29 @@ public struct NormalizedQuotaMetric: Equatable, Sendable {
         }
         return false
     }
+    
+    /// Label deskriptif durasi / tipe kuota (misal: "5 Jam (Sesi)" atau "Mingguan")
+    public var durationLabel: String {
+        if isWeekly {
+            return "Mingguan (Weekly)"
+        } else {
+            return "5 Jam (Sesi)"
+        }
+    }
+}
+
+/// Kelompok model AI yang menggabungkan metrik 5 Jam dan Mingguan dalam satu grup
+public struct QuotaFamilyGroup: Identifiable, Equatable, Sendable {
+    public var id: String { title }
+    public let title: String
+    public let icon: String
+    public let metrics: [NormalizedQuotaMetric]
+    
+    public init(title: String, icon: String, metrics: [NormalizedQuotaMetric]) {
+        self.title = title
+        self.icon = icon
+        self.metrics = metrics
+    }
 }
 
 /// Representasi lengkap kuota per provider connection
@@ -149,6 +172,66 @@ public struct NormalizedProviderQuota: Identifiable, Equatable, Sendable {
     public let errorMessage: String?
     public let authType: String?
     public let accountName: String?
+    
+    /// Kelompok model AI terpadu (menggabungkan kuota 5 Jam dan Mingguan per kelompok model)
+    public var familyGroups: [QuotaFamilyGroup] {
+        var groupsMap: [String: (title: String, icon: String, metrics: [NormalizedQuotaMetric])] = [:]
+        var groupOrder: [String] = []
+        
+        for metric in metrics {
+            let lower = metric.name.lowercased()
+            let key: String
+            let title: String
+            let icon: String
+            
+            if lower.contains("gemini") {
+                key = "gemini"
+                title = "Gemini"
+                icon = "✨"
+            } else if lower.contains("claude") || lower.contains("gpt") {
+                key = "claude_gpt"
+                title = "Claude & GPT"
+                icon = "🤖"
+            } else if lower.contains("spark") {
+                key = "spark"
+                title = "Spark"
+                icon = "⚡"
+            } else if lower.contains("codex") {
+                key = "codex"
+                title = "Codex"
+                icon = "⚡"
+            } else if lower.contains("openai") || lower.contains("chatgpt") {
+                key = "openai"
+                title = "OpenAI"
+                icon = "🧠"
+            } else if lower.contains("deepseek") {
+                key = "deepseek"
+                title = "DeepSeek"
+                icon = "🧊"
+            } else {
+                key = "default"
+                title = provider.isEmpty ? "Model" : provider.capitalized
+                icon = "📊"
+            }
+            
+            if groupsMap[key] == nil {
+                groupsMap[key] = (title: title, icon: icon, metrics: [])
+                groupOrder.append(key)
+            }
+            groupsMap[key]?.metrics.append(metric)
+        }
+        
+        return groupOrder.compactMap { key in
+            guard let data = groupsMap[key] else { return nil }
+            // Urutkan: Kuota 5 Jam (Sesi) lebih dulu, baru Kuota Mingguan (Weekly)
+            let sorted = data.metrics.sorted { m1, m2 in
+                if !m1.isWeekly && m2.isWeekly { return true }
+                if m1.isWeekly && !m2.isWeekly { return false }
+                return m1.name < m2.name
+            }
+            return QuotaFamilyGroup(title: data.title, icon: data.icon, metrics: sorted)
+        }
+    }
     
     /// Metrik kuota sesi / 5 jam
     public var sessionMetrics: [NormalizedQuotaMetric] {

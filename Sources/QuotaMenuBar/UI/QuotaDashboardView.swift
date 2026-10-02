@@ -623,23 +623,31 @@ public struct ProviderCardView: View {
                         .padding(.vertical, 2)
                 }
             } else {
-                VStack(spacing: 11) {
-                    // Kelompok 1: Kuota 5 Jam / Sesi
-                    if !provider.sessionMetrics.isEmpty {
-                        VStack(alignment: .leading, spacing: 7) {
+                VStack(spacing: 12) {
+                    ForEach(Array(provider.familyGroups.enumerated()), id: \.offset) { index, family in
+                        if index > 0 {
+                            Divider()
+                                .opacity(0.35)
+                                .padding(.vertical, 1)
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            // Header Kelompok Model (misal: "✨ Gemini" atau "🤖 Claude & GPT")
                             HStack(spacing: 5) {
-                                Image(systemName: "clock.arrow.circlepath")
-                                    .font(.system(size: 10, weight: .semibold))
-                                    .foregroundColor(.blue)
-                                Text("Kuota 5 Jam (Sesi)")
-                                    .font(.system(size: 10.5, weight: .bold))
-                                    .foregroundColor(.secondary)
+                                Text(family.icon)
+                                    .font(.system(size: 11))
+                                
+                                Text(family.title)
+                                    .font(.system(size: 11.5, weight: .bold))
+                                    .foregroundColor(.primary)
+                                
                                 Spacer()
                             }
-                            .padding(.top, 2)
+                            .padding(.top, 1)
                             
-                            VStack(spacing: 8) {
-                                ForEach(Array(provider.sessionMetrics.enumerated()), id: \.offset) { _, metric in
+                            // List Metrik Kuota (5 Jam Sesi & Mingguan) di dalam Kelompok ini
+                            VStack(spacing: 9) {
+                                ForEach(Array(family.metrics.enumerated()), id: \.offset) { _, metric in
                                     MetricRowView(
                                         metric: metric,
                                         provider: provider.provider,
@@ -649,43 +657,6 @@ public struct ProviderCardView: View {
                                     )
                                 }
                             }
-                        }
-                    }
-                    
-                    // Pembatas
-                    Divider()
-                        .opacity(0.35)
-                    
-                    // Kelompok 2: Kuota Mingguan (Weekly)
-                    VStack(alignment: .leading, spacing: 7) {
-                        HStack(spacing: 5) {
-                            Image(systemName: "calendar.badge.clock")
-                                .font(.system(size: 10, weight: .semibold))
-                                .foregroundColor(.purple)
-                            Text("Kuota Mingguan (Weekly)")
-                                .font(.system(size: 10.5, weight: .bold))
-                                .foregroundColor(.secondary)
-                            Spacer()
-                        }
-                        .padding(.top, 2)
-                        
-                        if !provider.weeklyMetrics.isEmpty {
-                            VStack(spacing: 8) {
-                                ForEach(Array(provider.weeklyMetrics.enumerated()), id: \.offset) { _, metric in
-                                    MetricRowView(
-                                        metric: metric,
-                                        provider: provider.provider,
-                                        onToggle: { isEnabled in
-                                            onToggleMetric?(metric.name, isEnabled)
-                                        }
-                                    )
-                                }
-                            }
-                        } else {
-                            Text("Tidak ada batasan kuota mingguan")
-                                .font(.system(size: 10.5))
-                                .foregroundColor(.secondary.opacity(0.7))
-                                .padding(.vertical, 2)
                         }
                     }
                 }
@@ -864,17 +835,24 @@ public struct MetricRowView: View {
     
     public var body: some View {
         VStack(spacing: 4) {
-            // Baris 1: Nama Kuota/Model & Persentase Sisa + Sakelar Toggle
+            // Baris 1: Tag Durasi / Tipe Kuota & Persentase Sisa + Sakelar Toggle
             HStack(spacing: 6) {
-                // Ikon & Nama Model / Kuota
+                // Badge Tipe Durasi (5 Jam / Mingguan)
                 HStack(spacing: 4) {
-                    Text(metric.icon)
-                        .font(.system(size: 11))
+                    Image(systemName: metric.isWeekly ? "calendar" : "clock")
+                        .font(.system(size: 9, weight: .semibold))
+                        .foregroundColor(metric.isWeekly ? .purple : .blue)
                     
-                    Text(metric.friendlyName(provider: provider))
-                        .font(.system(size: 11.5, weight: .medium, design: .monospaced))
+                    Text(metric.durationLabel)
+                        .font(.system(size: 11, weight: .semibold))
                         .foregroundColor(isEnabled ? .primary : .secondary)
                 }
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2.5)
+                .background(
+                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                        .fill((metric.isWeekly ? Color.purple : Color.blue).opacity(isEnabled ? 0.12 : 0.05))
+                )
                 
                 Spacer()
                 
