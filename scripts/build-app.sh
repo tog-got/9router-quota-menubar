@@ -41,11 +41,17 @@ if [ -f "$PROJECT_ROOT/Resources/AppIcon.icns" ]; then
     cp "$PROJECT_ROOT/Resources/AppIcon.icns" "$APP_BUNDLE/Contents/Resources/AppIcon.icns"
 fi
 
-# 5. Codesign secara ad-hoc untuk macOS Apple Silicon
+# 5. Bersihkan atribut extended & Codesign secara ad-hoc untuk macOS Apple Silicon
+xattr -cr "$APP_BUNDLE"
 echo "🔏 Menandatangani app bundle (ad-hoc codesign)..."
 codesign --force --deep --sign - "$APP_BUNDLE"
 
-# 6. Buat archive release .zip
+# 6. Pasang icon Finder (opsional)
+if [ -f "$PROJECT_ROOT/Resources/AppIcon.icns" ] && [ -f "$PROJECT_ROOT/scripts/set-app-icon.swift" ]; then
+    swift "$PROJECT_ROOT/scripts/set-app-icon.swift" "$PROJECT_ROOT/Resources/AppIcon.icns" "$APP_BUNDLE" || true
+fi
+
+# 7. Buat archive release .zip
 cd "$BUILD_DIR"
 rm -f "$APP_NAME-macOS-arm64.zip"
 zip -r -y -q "$APP_NAME-macOS-arm64.zip" "$APP_NAME.app"
