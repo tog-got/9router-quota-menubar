@@ -36,9 +36,9 @@ public struct QuotaDashboardView: View {
         VStack(spacing: 0) {
             // 1. Header Popover
             popoverHeader
-                .padding(.horizontal, 10)
-                .padding(.top, 8)
-                .padding(.bottom, 6)
+                .padding(.horizontal, 12)
+                .padding(.top, 10)
+                .padding(.bottom, 8)
             
             Divider()
                 .opacity(0.6)
@@ -52,8 +52,8 @@ public struct QuotaDashboardView: View {
             }
             
             // 2. Konten Utama (Scrollable Cards)
-            ScrollView(.vertical, showsIndicators: true) {
-                VStack(spacing: 8) {
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 10) {
                     statusBannerView
                     
                     if quotaManager.quotas.isEmpty && !quotaManager.isRefreshing {
@@ -74,13 +74,13 @@ public struct QuotaDashboardView: View {
                                     }
                                 }
                             )
-                            .padding(.vertical, 2)
                         }
                     }
                 }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 8)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 10)
             }
+            .scrollIndicators(.automatic)
             .frame(maxHeight: .infinity)
             
             Divider()
@@ -88,7 +88,7 @@ public struct QuotaDashboardView: View {
             
             // 3. Footer Status & Action Bar
             popoverFooter
-                .padding(.horizontal, 10)
+                .padding(.horizontal, 12)
                 .padding(.vertical, 8)
                 .background(Color(NSColor.windowBackgroundColor).opacity(0.6))
         }
@@ -386,9 +386,10 @@ public struct QuotaDashboardView: View {
                         filterChip(option: option)
                     }
                 }
-                .padding(.horizontal, 14)
+                .padding(.horizontal, 12)
                 .padding(.vertical, 7)
             }
+            .scrollIndicators(.hidden)
             
             // Dropdown Menu Selector Cepat
             Menu {
@@ -413,7 +414,7 @@ public struct QuotaDashboardView: View {
             }
             .menuStyle(.borderlessButton)
             .menuIndicator(.hidden)
-            .padding(.trailing, 10)
+            .padding(.trailing, 12)
             .help("Pilih Kelompok Provider")
         }
         .background(Color(NSColor.controlBackgroundColor).opacity(0.35))
@@ -690,7 +691,7 @@ public struct ProviderCardView: View {
                 }
             }
         }
-        .padding(8)
+        .padding(12)
         .background(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .fill(Color(NSColor.controlBackgroundColor))
