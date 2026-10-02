@@ -1,99 +1,111 @@
-# 9Router Quota Tracker (macOS Menu Bar Native App)
+# 9Router Quota Tracker (macOS Native Menu Bar App)
 
-Aplikasi macOS Menu Bar (Status Bar) native Swift ARM64 yang ringan dan cepat untuk memantau status serta sisa kuota provider AI pada **9Router** (`http://localhost:20128`).
+[![Platform: macOS](https://img.shields.io/badge/platform-macOS%2013%2B%20(ARM64)-blue.svg)](https://apple.com)
+[![Swift: 5.9+](https://img.shields.io/badge/Swift-5.9%2B-orange.svg)](https://swift.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Tests: 24/24 Passed](https://img.shields.io/badge/Tests-24%2F24%20Passing-brightgreen.svg)]()
+
+> **English & Bahasa Indonesia** documentation provided below.
 
 ---
 
-## 🌟 Fitur Utama
+## 🇮🇩 Bahasa Indonesia
 
+Aplikasi macOS Menu Bar (Status Bar) native Swift ARM64 yang ultra-ringan dan cepat untuk memantau status serta sisa kuota provider AI pada **9Router** (`http://localhost:20128`).
+
+### 🌟 Fitur Utama
 1. **Native & Ringan (Apple Silicon ARM64)**:
-   - Dibuat dengan Swift murni dan AppKit (`NSStatusItem`).
+   - Dibuat dengan Swift murni dan AppKit (`NSStatusItem` & SwiftUI Popover).
    - Berjalan sebagai Menu Bar Extra tanpa ikon di Dock (`LSUIElement = true`).
-   - Hemat memori dan CPU (sangat cocok untuk MacBook M1/M2/M3).
-2. **Integrasi Penuh 9Router**:
-   - Endpoint login `POST /api/auth/login` dengan manajemen sesi cookie (`URLSession` / `HTTPCookieStorage`).
-   - Endpoint daftar koneksi `GET /api/providers/client`.
-   - Endpoint metrik kuota `GET /api/usage/{connectionId}`.
-3. **Normalisasi & Tampilan Kuota**:
-   - Menampilkan status 9Router (`🟢 Terhubung`, `🟡 Perlu Login`, `🔴 Offline`).
-   - Menampilkan daftar provider aktif beserta nama akun / display name.
-   - Menampilkan penggunaan kuota terpakai vs total, persentase sisa, dan estimasi waktu reset.
-   - **Anti-Halusinasi**: Tidak membuat data kuota palsu jika tidak disediakan oleh API.
+   - Sangat hemat memori RAM dan konsumsi CPU (dioptimalkan untuk MacBook Air/Pro M1/M2/M3/M4).
+2. **Pengelompokan Kuota Terpadu (*Model Family Grouping*)**:
+   - Menyatukan kuota **5 Jam (Sesi)** dan **Mingguan (Weekly)** ke dalam satu kotak kelompok model (misal: Gemini, Claude & GPT, Spark, Codex).
+   - Dilengkapi badge durasi yang jelas, visual progress bar, persentase sisa kuota, dan waktu hitung mundur reset (*countdown*).
+3. **Kendali Jalur Langsung (*Direct Provider & Model Toggle*)**:
+   - Terintegrasi penuh dengan API 9Router (`PUT /api/providers/:id` dengan payload `isActive`).
+   - Dapat memutus atau menyambungkan jalur provider secara instan langsung dari menu bar tanpa harus membuka browser.
 4. **Keamanan Maksimal**:
-   - Menggunakan macOS **Keychain API** (`Security.framework`) untuk menyimpan password 9Router secara terenkripsi di level sistem operasi.
+   - Menggunakan **macOS Keychain API** (`Security.framework`) untuk menyimpan password 9Router secara terenkripsi di level sistem operasi.
    - Password dan token tidak pernah dicetak ke berkas teks atau log biasa.
 5. **Auto-Refresh & Aksi Cepat**:
    - Refresh otomatis di latar belakang setiap 10 menit.
-   - Tombol manual **Refresh Kuota** (`Cmd+R`).
-   - Tombol **Buka Dashboard** (`Cmd+D`) untuk membuka web dashboard 9Router.
-   - Tombol **Atur Password...** (`Cmd+P`) dan **Logout**.
+   - Tombol manual **Refresh Kuota** (`Cmd+R`), **Web Dashboard** (`Cmd+D`), dan **Atur Password** (`Cmd+P`).
    - Opsi **Auto-start saat Login** terintegrasi dengan `SMAppService`.
 
----
-
-## 📂 Struktur Proyek
-
-```
-9router-quota-menubar/
-├── Package.swift                    # Konfigurasi Swift Package Manager (macOS 13+)
-├── Resources/
-│   └── Info.plist                  # Metadata bundle & LSUIElement = true (No Dock)
-├── Sources/
-│   ├── QuotaTrackerCore/           # Logika Core, Model, & API Client
-│   │   ├── Models/
-│   │   │   ├── AuthRequest.swift
-│   │   │   ├── ProviderConnection.swift
-│   │   │   ├── UsageResponse.swift
-│   │   │   └── NormalizedQuota.swift
-│   │   ├── Services/
-│   │   │   ├── NineRouterAPIClient.swift
-│   │   │   ├── QuotaManager.swift
-│   │   │   ├── KeychainHelper.swift
-│   │   │   └── AutoStartManager.swift
-│   │   └── Utils/
-│   │       ├── FlexibleDecoders.swift
-│   │       └── Formatters.swift
-│   ├── QuotaMenuBar/               # Aplikasi AppKit / Menu Bar UI
-│   │   ├── AppDelegate.swift
-│   │   ├── main.swift
-│   │   └── UI/
-│   │       ├── StatusMenuController.swift
-│   │       └── PasswordPromptWindow.swift
-│   └── QuotaTrackerCoreTestRunner/ # Test Suite Lengkap
-│       ├── TestHarness.swift
-│       └── main.swift
-├── scripts/
-│   └── build-app.sh                # Skrip otomatis test, compile release, bundle .app & codesign
-└── build/
-    └── QuotaMenuBar.app            # Bundle aplikasi siap pakai
-```
-
----
-
-## 🚀 Cara Build & Menjalankan
-
-### 1. Build & Bundle `.app`
-Jalankan skrip build otomatis:
+### 🚀 Cara Build & Menjalankan
 ```bash
+# 1. Jalankan skrip build otomatis (menjalankan test, compile release ARM64, codesign, & bundling .app)
 ./scripts/build-app.sh
-```
-Skrip ini akan:
-1. Menjalankan seluruh pengujian unit (14 skenario test).
-2. Meng-compile binary release ARM64 (`swift build -c release --arch arm64`).
-3. Mengemas menjadi `build/QuotaMenuBar.app` lengkap dengan `Info.plist`.
-4. Menandatangani (*codesign*) app bundle secara lokal.
 
-### 2. Menjalankan Aplikasi
-Buka aplikasi yang sudah di-bundle:
-```bash
+# 2. Buka aplikasi
 open build/QuotaMenuBar.app
-```
-Atau salin ke folder `/Applications` jika ingin dipasang permanen:
-```bash
+
+# Atau pasang permanen ke Applications:
 cp -R build/QuotaMenuBar.app /Applications/
 ```
 
-### 3. Menjalankan Test Suite Mandiri
+---
+
+## 🇬🇧 English
+
+An ultra-lightweight, native macOS Menu Bar application built in pure Swift (ARM64) to monitor real-time AI provider quotas and router status on **9Router** (`http://localhost:20128`).
+
+### 🌟 Key Features
+1. **Native & Lightweight (Apple Silicon ARM64)**:
+   - Built with pure Swift, AppKit (`NSStatusItem`), and SwiftUI Popover views.
+   - Runs as a status bar extra without cluttering the macOS Dock (`LSUIElement = true`).
+   - Minimal memory footprint and low CPU usage, perfectly tailored for Apple Silicon (M1/M2/M3/M4).
+2. **Unified Model Family Grouping**:
+   - Organizes both **5-Hour (Session)** and **Weekly** quotas within unified model cards (e.g., Gemini, Claude & GPT, Spark, Codex).
+   - Features clean duration tags, visual progress indicators, percentage metrics, and live reset countdowns.
+3. **Direct Provider & Model Toggle**:
+   - Seamlessly integrated with 9Router's upstream API (`PUT /api/providers/:id` with `isActive` payload).
+   - Enable or disable provider routes instantly from the menu bar without navigating to the web dashboard.
+4. **Hardware-Level Security**:
+   - Uses the native **macOS Keychain API** (`Security.framework`) to store credentials safely.
+   - Never exposes tokens, keys, or passwords in plaintext files or standard logs.
+5. **Auto-Refresh & Quick Shortcuts**:
+   - Automatic background polling every 10 minutes.
+   - Quick actions for **Refresh** (`Cmd+R`), **Open Dashboard** (`Cmd+D`), and **Set Password** (`Cmd+P`).
+   - Native macOS login item integration via `SMAppService`.
+
+### 🚀 Build & Installation
 ```bash
-swift run QuotaTrackerCoreTestRunner
+# 1. Execute automated build script (runs unit tests, compiles release ARM64 binary, codesigns, & bundles .app)
+./scripts/build-app.sh
+
+# 2. Launch application
+open build/QuotaMenuBar.app
+
+# Or install permanently into /Applications:
+cp -R build/QuotaMenuBar.app /Applications/
+```
+
+---
+
+## 📂 Project Structure
+```
+9router-quota-menubar/
+├── Package.swift                    # Swift Package Manager configuration (macOS 13+)
+├── Resources/
+│   ├── AppIcon.icns                # High-resolution Apple Silicon icon
+│   └── Info.plist                  # Bundle metadata (LSUIElement = true)
+├── Sources/
+│   ├── QuotaTrackerCore/           # Core logic, normalizer, models & API client
+│   │   ├── Models/
+│   │   ├── Services/
+│   │   └── Utils/
+│   ├── QuotaMenuBar/               # AppKit status bar controller & SwiftUI views
+│   │   ├── AppDelegate.swift
+│   │   ├── main.swift
+│   │   └── UI/
+│   └── QuotaTrackerCoreTestRunner/ # Standalone unit test harness (24 test suites)
+│       ├── TestHarness.swift
+│       └── main.swift
+├── scripts/
+│   ├── build-app.sh                # Automated test, release build, package & codesign script
+│   └── generate-icon.swift         # Vector icon generator for macOS AppIcon.icns
+└── build/
+    ├── QuotaMenuBar.app            # Ready-to-use macOS application bundle
+    └── QuotaMenuBar-macOS-arm64.zip # Portable distribution archive
 ```

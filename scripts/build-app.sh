@@ -33,14 +33,23 @@ rm -rf "$APP_BUNDLE"
 mkdir -p "$APP_BUNDLE/Contents/MacOS"
 mkdir -p "$APP_BUNDLE/Contents/Resources"
 
-# 4. Salin binary dan Info.plist
+# 4. Salin binary, Info.plist, dan Assets
 cp "$BIN_SRC" "$APP_BUNDLE/Contents/MacOS/$APP_NAME"
 chmod +x "$APP_BUNDLE/Contents/MacOS/$APP_NAME"
 cp "$PROJECT_ROOT/Resources/Info.plist" "$APP_BUNDLE/Contents/Info.plist"
+if [ -f "$PROJECT_ROOT/Resources/AppIcon.icns" ]; then
+    cp "$PROJECT_ROOT/Resources/AppIcon.icns" "$APP_BUNDLE/Contents/Resources/AppIcon.icns"
+fi
 
 # 5. Codesign secara ad-hoc untuk macOS Apple Silicon
 echo "🔏 Menandatangani app bundle (ad-hoc codesign)..."
 codesign --force --deep --sign - "$APP_BUNDLE"
+
+# 6. Buat archive release .zip
+cd "$BUILD_DIR"
+rm -f "$APP_NAME-macOS-arm64.zip"
+zip -r -y -q "$APP_NAME-macOS-arm64.zip" "$APP_NAME.app"
+cd "$PROJECT_ROOT"
 
 echo "=================================================="
 echo "✅ Build Sukses 100%!"
