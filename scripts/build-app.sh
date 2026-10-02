@@ -6,12 +6,13 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
 
 APP_NAME="QuotaMenuBar"
+APP_DISPLAY_NAME="9Router Tracker"
 BUILD_DIR="$PROJECT_ROOT/build"
-APP_BUNDLE="$BUILD_DIR/$APP_NAME.app"
+APP_BUNDLE="$BUILD_DIR/$APP_DISPLAY_NAME.app"
 BIN_SRC="$PROJECT_ROOT/.build/release/$APP_NAME"
 
 echo "=================================================="
-echo "🚀 Memulai build release native ARM64: $APP_NAME"
+echo "🚀 Memulai build release native ARM64: $APP_DISPLAY_NAME"
 echo "=================================================="
 
 # 1. Jalankan unit test
@@ -48,8 +49,8 @@ codesign --force --deep --sign - "$APP_BUNDLE"
 
 # 6. Buat archive release .zip
 cd "$BUILD_DIR"
-rm -f "$APP_NAME-macOS-arm64.zip"
-zip -r -y -q "$APP_NAME-macOS-arm64.zip" "$APP_NAME.app"
+rm -f "9RouterTracker-macOS-arm64.zip" "QuotaMenuBar-macOS-arm64.zip"
+zip -r -y -q "9RouterTracker-macOS-arm64.zip" "$APP_DISPLAY_NAME.app"
 cd "$PROJECT_ROOT"
 
 echo "=================================================="

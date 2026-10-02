@@ -38,10 +38,10 @@ Aplikasi macOS Menu Bar (Status Bar) native Swift ARM64 yang ultra-ringan dan ce
 ./scripts/build-app.sh
 
 # 2. Buka aplikasi
-open build/QuotaMenuBar.app
+open "build/9Router Tracker.app"
 
 # Atau pasang permanen ke Applications:
-cp -R build/QuotaMenuBar.app /Applications/
+cp -R "build/9Router Tracker.app" /Applications/
 ```
 
 ---
@@ -75,10 +75,10 @@ An ultra-lightweight, native macOS Menu Bar application built in pure Swift (ARM
 ./scripts/build-app.sh
 
 # 2. Launch application
-open build/QuotaMenuBar.app
+open "build/9Router Tracker.app"
 
 # Or install permanently into /Applications:
-cp -R build/QuotaMenuBar.app /Applications/
+cp -R "build/9Router Tracker.app" /Applications/
 ```
 
 ---
@@ -106,6 +106,6 @@ cp -R build/QuotaMenuBar.app /Applications/
 │   ├── build-app.sh                # Automated test, release build, package & codesign script
 │   └── generate-icon.swift         # Vector icon generator for macOS AppIcon.icns
 └── build/
-    ├── QuotaMenuBar.app            # Ready-to-use macOS application bundle
-    └── QuotaMenuBar-macOS-arm64.zip # Portable distribution archive
+    ├── 9Router Tracker.app         # Ready-to-use macOS application bundle
+    └── 9RouterTracker-macOS-arm64.zip # Portable distribution archive
 ```
