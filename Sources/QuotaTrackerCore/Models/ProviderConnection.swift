@@ -9,6 +9,7 @@ public struct ProviderConnection: Codable, Identifiable, Equatable, Sendable {
     public let email: String?
     public let accountStatus: String?
     public let status: String?
+    public let isActive: Bool?
     public let priority: Int?
     public let isPaid: Bool?
     public let tier: String?
@@ -27,6 +28,7 @@ public struct ProviderConnection: Codable, Identifiable, Equatable, Sendable {
         email: String? = nil,
         accountStatus: String? = nil,
         status: String? = nil,
+        isActive: Bool? = nil,
         priority: Int? = nil,
         isPaid: Bool? = nil,
         tier: String? = nil,
@@ -44,6 +46,7 @@ public struct ProviderConnection: Codable, Identifiable, Equatable, Sendable {
         self.email = email
         self.accountStatus = accountStatus
         self.status = status
+        self.isActive = isActive
         self.priority = priority
         self.isPaid = isPaid
         self.tier = tier
@@ -99,6 +102,9 @@ public struct ProviderConnection: Codable, Identifiable, Equatable, Sendable {
     }
     
     public var isConnectionActive: Bool {
+        if let active = isActive {
+            return active
+        }
         let st = effectiveStatus.lowercased()
         return st == "active" || st == "ok" || st == "healthy" || st == "enabled" || st == "ready"
     }

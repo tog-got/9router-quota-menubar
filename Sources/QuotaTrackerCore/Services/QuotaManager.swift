@@ -182,33 +182,32 @@ public final class QuotaManager: ObservableObject {
         }
     }
     
-    /// Mengubah status aktif/nonaktif untuk model / provider
-    public func toggleModel(connectionId: String, metricName: String, isEnabled: Bool) async -> Result<Void, Error> {
+    /// Mengubah status aktif/nonaktif untuk seluruh koneksi provider
+    public func toggleProvider(connectionId: String, isEnabled: Bool) async -> Result<Void, Error> {
         // Update state lokal terlebih dahulu (optimistic update)
         if let pIdx = quotas.firstIndex(where: { $0.connectionId == connectionId }) {
             var updatedProvider = quotas[pIdx]
-            var updatedMetrics = updatedProvider.metrics
-            if let mIdx = updatedMetrics.firstIndex(where: { $0.name == metricName }) {
-                var m = updatedMetrics[mIdx]
-                m.isEnabled = isEnabled
-                updatedMetrics[mIdx] = m
-                updatedProvider = NormalizedProviderQuota(
-                    connectionId: updatedProvider.connectionId,
-                    provider: updatedProvider.provider,
-                    displayName: updatedProvider.displayName,
-                    accountStatus: isEnabled ? "active" : "disabled",
-                    isOnline: isEnabled,
-                    metrics: updatedMetrics,
-                    hasQuota: updatedProvider.hasQuota,
-                    errorMessage: updatedProvider.errorMessage,
-                    authType: updatedProvider.authType,
-                    accountName: updatedProvider.accountName
-                )
-                quotas[pIdx] = updatedProvider
+            let updatedMetrics = updatedProvider.metrics.map { m in
+                var mod = m
+                mod.isEnabled = isEnabled
+                return mod
             }
+            updatedProvider = NormalizedProviderQuota(
+                connectionId: updatedProvider.connectionId,
+                provider: updatedProvider.provider,
+                displayName: updatedProvider.displayName,
+                accountStatus: isEnabled ? "active" : "disabled",
+                isOnline: isEnabled,
+                metrics: updatedMetrics,
+                hasQuota: updatedProvider.hasQuota,
+                errorMessage: updatedProvider.errorMessage,
+                authType: updatedProvider.authType,
+                accountName: updatedProvider.accountName
+            )
+            quotas[pIdx] = updatedProvider
         }
         
-        // Kirim request ke API 9Router
+        // Kirim request ke API 9Router (PUT /api/providers/:id with {"isActive": isEnabled})
         do {
             _ = try await apiClient.updateProviderStatus(connectionId: connectionId, isEnabled: isEnabled)
             return .success(())
@@ -217,6 +216,11 @@ public final class QuotaManager: ObservableObject {
             await refreshQuotas()
             return .failure(error)
         }
+    }
+    
+    /// Mengubah status aktif/nonaktif untuk model / provider
+    public func toggleModel(connectionId: String, metricName: String, isEnabled: Bool) async -> Result<Void, Error> {
+        return await toggleProvider(connectionId: connectionId, isEnabled: isEnabled)
     }
     
     /// Logout: Hapus cookie sesi dan password di keychain jika diminta

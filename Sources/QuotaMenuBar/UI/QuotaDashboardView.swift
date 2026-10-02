@@ -64,6 +64,14 @@ public struct QuotaDashboardView: View {
                         ForEach(filteredQuotas) { provider in
                             ProviderCardView(
                                 provider: provider,
+                                onToggleProvider: { isEnabled in
+                                    Task {
+                                        _ = await quotaManager.toggleProvider(
+                                            connectionId: provider.connectionId,
+                                            isEnabled: isEnabled
+                                        )
+                                    }
+                                },
                                 onToggleMetric: { metricName, isEnabled in
                                     Task {
                                         _ = await quotaManager.toggleModel(
@@ -589,13 +597,16 @@ public struct QuotaDashboardView: View {
 
 public struct ProviderCardView: View {
     let provider: NormalizedProviderQuota
+    var onToggleProvider: ((Bool) -> Void)? = nil
     var onToggleMetric: ((String, Bool) -> Void)? = nil
     
     public init(
         provider: NormalizedProviderQuota,
+        onToggleProvider: ((Bool) -> Void)? = nil,
         onToggleMetric: ((String, Bool) -> Void)? = nil
     ) {
         self.provider = provider
+        self.onToggleProvider = onToggleProvider
         self.onToggleMetric = onToggleMetric
     }
     
@@ -688,21 +699,28 @@ public struct ProviderCardView: View {
                 
                 Spacer()
                 
-                // Status Aktif Badge
-                HStack(spacing: 4) {
-                    Circle()
-                        .fill(provider.isOnline ? Color.green : Color.gray)
-                        .frame(width: 6, height: 6)
-                    Text(provider.isOnline ? "Active" : "Inactive")
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundColor(provider.isOnline ? .green : .secondary)
+                // Status Aktif Toggle Button / Badge
+                Button(action: {
+                    let newState = !provider.isOnline
+                    onToggleProvider?(newState)
+                }) {
+                    HStack(spacing: 5) {
+                        Circle()
+                            .fill(provider.isOnline ? Color.green : Color.gray)
+                            .frame(width: 6, height: 6)
+                        Text(provider.isOnline ? "Active" : "Inactive")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundColor(provider.isOnline ? .green : .secondary)
+                    }
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 2.5)
+                    .background(
+                        Capsule()
+                            .fill(provider.isOnline ? Color.green.opacity(0.12) : Color.secondary.opacity(0.1))
+                    )
                 }
-                .padding(.horizontal, 7)
-                .padding(.vertical, 2.5)
-                .background(
-                    Capsule()
-                        .fill(provider.isOnline ? Color.green.opacity(0.12) : Color.secondary.opacity(0.1))
-                )
+                .buttonStyle(.plain)
+                .help(provider.isOnline ? "Klik untuk Nonaktifkan Provider" : "Klik untuk Aktifkan Provider")
             }
             
             // Baris 2: Badge Akun, Tipe Auth, dan Waktu Reset Terdekat

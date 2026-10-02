@@ -176,12 +176,11 @@ public final class NineRouterAPIClient: @unchecked Sendable {
     public func updateProviderStatus(connectionId: String, isEnabled: Bool) async throws -> Bool {
         let endpoint = baseURL.appendingPathComponent("api/providers/\(connectionId)")
         var request = URLRequest(url: endpoint)
-        request.httpMethod = "PATCH"
+        request.httpMethod = "PUT"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         
-        let newStatus = isEnabled ? "active" : "disabled"
-        let body: [String: Any] = ["accountStatus": newStatus, "status": newStatus]
+        let body: [String: Any] = ["isActive": isEnabled]
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
         
         do {
@@ -195,16 +194,6 @@ public final class NineRouterAPIClient: @unchecked Sendable {
             } else if httpResponse.statusCode == 401 || httpResponse.statusCode == 403 {
                 throw APIError.unauthorized
             } else {
-                // Fallback: coba kirim PUT jika PATCH ditolak
-                var putReq = URLRequest(url: endpoint)
-                putReq.httpMethod = "PUT"
-                putReq.setValue("application/json", forHTTPHeaderField: "Content-Type")
-                putReq.setValue("application/json", forHTTPHeaderField: "Accept")
-                putReq.httpBody = request.httpBody
-                let (_, putRes) = try await session.data(for: putReq)
-                if let putHttp = putRes as? HTTPURLResponse, putHttp.statusCode == 200 || putHttp.statusCode == 204 {
-                    return true
-                }
                 throw APIError.serverError(statusCode: httpResponse.statusCode, message: nil)
             }
         } catch let err as APIError {
