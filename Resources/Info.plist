@@ -15,7 +15,7 @@
     <key>CFBundleDisplayName</key>
     <string>9Router Quota</string>
     <key>CFBundleIconFile</key>
-    <string>AppIcon</string>
+    <string>AppIcon.icns</string>
     <key>CFBundleIconName</key>
     <string>AppIcon</string>
     <key>CFBundlePackageType</key>
