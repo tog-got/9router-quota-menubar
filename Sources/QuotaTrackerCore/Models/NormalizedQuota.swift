@@ -78,6 +78,7 @@ public struct NormalizedQuotaMetric: Equatable, Sendable {
         if n.contains("claude") { return "🤖" }
         if n.contains("gemini") { return "✨" }
         if n.contains("codex") || n.contains("spark") { return "⚡" }
+        if n.contains("opencode") { return "💻" }
         if n.contains("review") { return "🔍" }
         if n.contains("gpt") || n.contains("openai") { return "🧠" }
         return "📊"
@@ -208,6 +209,10 @@ public struct NormalizedProviderQuota: Identifiable, Equatable, Sendable {
                 key = "deepseek"
                 title = "DeepSeek"
                 icon = "🧊"
+            } else if lower.contains("opencode") || provider.lowercased() == "opencode" {
+                key = "opencode"
+                title = "OpenCode"
+                icon = "💻"
             } else {
                 key = "default"
                 title = provider.isEmpty ? "Model" : provider.capitalized

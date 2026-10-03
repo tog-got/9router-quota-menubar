@@ -482,6 +482,7 @@ public struct QuotaDashboardView: View {
         if p == "spark" { return "Spark" }
         if p == "groq" { return "Groq" }
         if p == "deepseek" { return "DeepSeek" }
+        if p == "opencode" { return "OpenCode" }
         return raw.capitalized
     }
     
@@ -494,6 +495,7 @@ public struct QuotaDashboardView: View {
         if p == "gemini" || p == "google" { return .blue }
         if p == "spark" { return .yellow }
         if p == "deepseek" { return .cyan }
+        if p == "opencode" { return Color(red: 0.0, green: 0.83, blue: 0.67) }
         return .secondary
     }
     
@@ -781,6 +783,7 @@ public struct ProviderCardView: View {
         if p == "spark" { return "Spark" }
         if p == "groq" { return "Groq" }
         if p == "deepseek" { return "DeepSeek" }
+        if p == "opencode" { return "OpenCode" }
         return provider.provider.capitalized
     }
     
@@ -810,6 +813,9 @@ public struct ProviderCardView: View {
         } else if p == "deepseek" {
             gradient = LinearGradient(colors: [Color.cyan, Color.blue], startPoint: .topLeading, endPoint: .bottomTrailing)
             iconName = "cube.transparent.fill"
+        } else if p == "opencode" {
+            gradient = LinearGradient(colors: [Color(red: 0.0, green: 0.83, blue: 0.67), Color(red: 0.1, green: 0.45, blue: 0.9)], startPoint: .topLeading, endPoint: .bottomTrailing)
+            iconName = "chevron.left.forwardslash.chevron.right"
         } else {
             gradient = LinearGradient(colors: [Color.gray, Color.secondary], startPoint: .topLeading, endPoint: .bottomTrailing)
             iconName = "cube.fill"

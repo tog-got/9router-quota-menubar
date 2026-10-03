@@ -626,6 +626,54 @@ struct TestMain {
             try assertEqual(claudeFamily?.metrics[1].name, "claude_gpt_weekly")
         }
         
+        // 10. OpenCode Provider & Free Tier Normalizer Tests
+        await runner.runTest(name: "OpenCode Provider & Quota Tracking") {
+            let conn = ProviderConnection(
+                id: FlexibleID("conn-opencode-1"),
+                provider: "opencode",
+                displayName: "OpenCode Free",
+                accountStatus: "active"
+            )
+            
+            let json = """
+            {
+                "connectionId": "conn-opencode-1",
+                "quotas": {
+                    "opencode_session": {
+                        "name": "opencode_session",
+                        "used": 5,
+                        "total": 50,
+                        "remaining": 45,
+                        "remainingPercentage": 90.0
+                    },
+                    "opencode_weekly": {
+                        "name": "opencode_weekly",
+                        "used": 100,
+                        "total": 500,
+                        "remaining": 400,
+                        "remainingPercentage": 80.0
+                    }
+                }
+            }
+            """.data(using: .utf8)!
+            
+            let usage = try JSONDecoder().decode(UsageResponse.self, from: json)
+            let norm = NormalizedProviderQuota.normalize(connection: conn, usage: usage)
+            
+            try assertEqual(norm.provider, "opencode")
+            try assertEqual(norm.displayName, "OpenCode Free")
+            try assertEqual(norm.isOnline, true)
+            try assertEqual(norm.hasQuota, true)
+            try assertEqual(norm.metrics.count, 2)
+            
+            // Check family groups for OpenCode
+            let families = norm.familyGroups
+            try assertEqual(families.count, 1, "Harus ada 1 family group OpenCode")
+            try assertEqual(families[0].title, "OpenCode")
+            try assertEqual(families[0].icon, "💻")
+            try assertEqual(families[0].metrics.count, 2)
+        }
+        
         let allSuccess = runner.summarize()
         if !allSuccess {
             exit(1)

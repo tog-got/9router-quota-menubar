@@ -3,7 +3,7 @@
 [![Platform: macOS](https://img.shields.io/badge/platform-macOS%2013%2B%20(ARM64)-blue.svg)](https://apple.com)
 [![Swift: 5.9+](https://img.shields.io/badge/Swift-5.9%2B-orange.svg)](https://swift.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Tests: 24/24 Passed](https://img.shields.io/badge/Tests-24%2F24%20Passing-brightgreen.svg)]()
+[![Tests: 25/25 Passed](https://img.shields.io/badge/Tests-25%2F25%20Passing-brightgreen.svg)]()
 
 > **English & Bahasa Indonesia** documentation provided below.
 
@@ -19,15 +19,17 @@ Aplikasi macOS Menu Bar (Status Bar) native Swift ARM64 yang ultra-ringan dan ce
    - Berjalan sebagai Menu Bar Extra tanpa ikon di Dock (`LSUIElement = true`).
    - Sangat hemat memori RAM dan konsumsi CPU (dioptimalkan untuk MacBook Air/Pro M1/M2/M3/M4).
 2. **Pengelompokan Kuota Terpadu (*Model Family Grouping*)**:
-   - Menyatukan kuota **5 Jam (Sesi)** dan **Mingguan (Weekly)** ke dalam satu kotak kelompok model (misal: Gemini, Claude & GPT, Spark, Codex).
+   - Menyatukan kuota **5 Jam (Sesi)** dan **Mingguan (Weekly)** ke dalam satu kotak kelompok model (misal: Gemini, Claude & GPT, Spark, Codex, OpenCode Free Tier).
    - Dilengkapi badge durasi yang jelas, visual progress bar, persentase sisa kuota, dan waktu hitung mundur reset (*countdown*).
-3. **Kendali Jalur Langsung (*Direct Provider & Model Toggle*)**:
+3. **Dukungan Berbagai Provider AI & Free Tier**:
+   - Mendukung pelacakan kuota Antigravity, Claude Code, OpenAI Codex, DeepSeek, Grok, Kimi, serta **OpenCode Free Tier**.
+4. **Kendali Jalur Langsung (*Direct Provider & Model Toggle*)**:
    - Terintegrasi penuh dengan API 9Router (`PUT /api/providers/:id` dengan payload `isActive`).
    - Dapat memutus atau menyambungkan jalur provider secara instan langsung dari menu bar tanpa harus membuka browser.
-4. **Keamanan Maksimal**:
+5. **Keamanan Maksimal**:
    - Menggunakan **macOS Keychain API** (`Security.framework`) untuk menyimpan password 9Router secara terenkripsi di level sistem operasi.
    - Password dan token tidak pernah dicetak ke berkas teks atau log biasa.
-5. **Auto-Refresh & Aksi Cepat**:
+6. **Auto-Refresh & Aksi Cepat**:
    - Refresh otomatis di latar belakang setiap 10 menit.
    - Tombol manual **Refresh Kuota** (`Cmd+R`), **Web Dashboard** (`Cmd+D`), dan **Atur Password** (`Cmd+P`).
    - Opsi **Auto-start saat Login** terintegrasi dengan `SMAppService`.
@@ -56,15 +58,17 @@ An ultra-lightweight, native macOS Menu Bar application built in pure Swift (ARM
    - Runs as a status bar extra without cluttering the macOS Dock (`LSUIElement = true`).
    - Minimal memory footprint and low CPU usage, perfectly tailored for Apple Silicon (M1/M2/M3/M4).
 2. **Unified Model Family Grouping**:
-   - Organizes both **5-Hour (Session)** and **Weekly** quotas within unified model cards (e.g., Gemini, Claude & GPT, Spark, Codex).
+   - Organizes both **5-Hour (Session)** and **Weekly** quotas within unified model cards (e.g., Gemini, Claude & GPT, Spark, Codex, OpenCode Free Tier).
    - Features clean duration tags, visual progress indicators, percentage metrics, and live reset countdowns.
-3. **Direct Provider & Model Toggle**:
+3. **Broad Provider & Free Tier Support**:
+   - Native support for Antigravity, Claude Code, OpenAI Codex, DeepSeek, Grok, Kimi, and **OpenCode Free Tier**.
+4. **Direct Provider & Model Toggle**:
    - Seamlessly integrated with 9Router's upstream API (`PUT /api/providers/:id` with `isActive` payload).
    - Enable or disable provider routes instantly from the menu bar without navigating to the web dashboard.
-4. **Hardware-Level Security**:
+5. **Hardware-Level Security**:
    - Uses the native **macOS Keychain API** (`Security.framework`) to store credentials safely.
    - Never exposes tokens, keys, or passwords in plaintext files or standard logs.
-5. **Auto-Refresh & Quick Shortcuts**:
+6. **Auto-Refresh & Quick Shortcuts**:
    - Automatic background polling every 10 minutes.
    - Quick actions for **Refresh** (`Cmd+R`), **Open Dashboard** (`Cmd+D`), and **Set Password** (`Cmd+P`).
    - Native macOS login item integration via `SMAppService`.
@@ -99,7 +103,7 @@ cp -R "build/9Router Tracker.app" /Applications/
 │   │   ├── AppDelegate.swift
 │   │   ├── main.swift
 │   │   └── UI/
-│   └── QuotaTrackerCoreTestRunner/ # Standalone unit test harness (24 test suites)
+│   └── QuotaTrackerCoreTestRunner/ # Standalone unit test harness (25 test suites)
 │       ├── TestHarness.swift
 │       └── main.swift
 ├── scripts/
