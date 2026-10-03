@@ -498,7 +498,8 @@ struct TestMain {
             config.protocolClasses = [MockURLProtocol.self]
             let session = URLSession(configuration: config)
             let client = NineRouterAPIClient(baseURL: URL(string: "http://localhost:20128")!, session: session)
-            let manager = QuotaManager(apiClient: client, keychainHelper: helper)
+            let dummyReader = OpenCodeUsageReader(dbPath: "/tmp/non_existent_opencode_test.db")
+            let manager = QuotaManager(apiClient: client, keychainHelper: helper, openCodeReader: dummyReader)
             
             await manager.refreshQuotas()
             let status = manager.status
@@ -672,6 +673,24 @@ struct TestMain {
             try assertEqual(families[0].title, "OpenCode")
             try assertEqual(families[0].icon, "💻")
             try assertEqual(families[0].metrics.count, 2)
+        }
+        
+        // 11. OpenCode Direct Local SQLite Reader Tests
+        await runner.runTest(name: "OpenCode Direct SQLite Reader") {
+            let reader = OpenCodeUsageReader()
+            // Test instance creation and safety against non-existing path
+            let dummyReader = OpenCodeUsageReader(dbPath: "/tmp/non_existent_opencode_test.db")
+            try assertEqual(dummyReader.isAvailable, false)
+            try assertEqual(dummyReader.fetchRecentUsage().count, 0)
+            try assertEqual(dummyReader.generateNormalizedQuota(), nil)
+            
+            // If real OpenCode database exists on machine, verify reading non-empty metrics
+            if reader.isAvailable {
+                let generated = reader.generateNormalizedQuota()
+                try assertEqual(generated != nil, true, "OpenCode quota should be generated when DB exists")
+                try assertEqual(generated?.provider, "opencode")
+                try assertEqual(generated?.authType, "Free Tier")
+            }
         }
         
         let allSuccess = runner.summarize()

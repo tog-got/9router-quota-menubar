@@ -3,7 +3,7 @@
 [![Platform: macOS](https://img.shields.io/badge/platform-macOS%2013%2B%20(ARM64)-blue.svg)](https://apple.com)
 [![Swift: 5.9+](https://img.shields.io/badge/Swift-5.9%2B-orange.svg)](https://swift.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Tests: 25/25 Passed](https://img.shields.io/badge/Tests-25%2F25%20Passing-brightgreen.svg)]()
+[![Tests: 26/26 Passed](https://img.shields.io/badge/Tests-26%2F26%20Passing-brightgreen.svg)]()
 
 > **English & Bahasa Indonesia** documentation provided below.
 
@@ -103,7 +103,7 @@ cp -R "build/9Router Tracker.app" /Applications/
 │   │   ├── AppDelegate.swift
 │   │   ├── main.swift
 │   │   └── UI/
-│   └── QuotaTrackerCoreTestRunner/ # Standalone unit test harness (25 test suites)
+│   └── QuotaTrackerCoreTestRunner/ # Standalone unit test harness (26 test suites)
 │       ├── TestHarness.swift
 │       └── main.swift
 ├── scripts/

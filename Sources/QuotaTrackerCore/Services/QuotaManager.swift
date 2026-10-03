@@ -35,16 +35,19 @@ public final class QuotaManager: ObservableObject {
     
     public let apiClient: NineRouterAPIClient
     public let keychainHelper: KeychainHelper
+    public let openCodeReader: OpenCodeUsageReader
     
     private var refreshTimer: Timer?
     public var refreshIntervalSeconds: TimeInterval = 600 // 10 menit
     
     public init(
         apiClient: NineRouterAPIClient = NineRouterAPIClient(),
-        keychainHelper: KeychainHelper = KeychainHelper.shared
+        keychainHelper: KeychainHelper = KeychainHelper.shared,
+        openCodeReader: OpenCodeUsageReader = OpenCodeUsageReader()
     ) {
         self.apiClient = apiClient
         self.keychainHelper = keychainHelper
+        self.openCodeReader = openCodeReader
     }
     
     /// Memulai timer otomatis setiap 10 menit
@@ -125,6 +128,14 @@ public final class QuotaManager: ObservableObject {
                 
                 for await item in group {
                     normalizedList.append(item)
+                }
+            }
+            
+            // Tambahkan data penggunaan OpenCode Free Tier jika database lokal tersedia
+            if let openCodeQuota = openCodeReader.generateNormalizedQuota() {
+                // Hindari duplikasi jika sudah ada dari 9Router
+                if !normalizedList.contains(where: { $0.provider.lowercased() == "opencode" }) {
+                    normalizedList.append(openCodeQuota)
                 }
             }
             
